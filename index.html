@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Manager</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; }
+    table { border-collapse: collapse; width: 50%; margin: 20px auto; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    button { padding: 10px 20px; margin: 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+  </style>
+</head>
+<body>
+  <h1>OTP Manager</h1>
+  <button onclick="fetchOTPs()">Refresh OTPs</button>
+  <table id="otpTable">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>OTP</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody id="otpBody"></tbody>
+  </table>
+
+  <script>
+    function fetchOTPs() {
+      fetch('otps.json')
+        .then(response => {
+          if (!response.ok) throw new Error('Không tìm thấy file otps.json');
+          return response.json();
+        })
+        .then(otps => {
+          const tbody = document.getElementById('otpBody');
+          tbody.innerHTML = '';
+          otps.forEach(({ email, otp, timestamp }) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${email}</td><td>${otp || 'N/A'}</td><td>${timestamp || 'N/A'}</td>`;
+            tbody.appendChild(row);
+          });
+        })
+        .catch(error => {
+          console.error('Lỗi:', error);
+          alert('Có lỗi khi tải OTP. Vui lòng kiểm tra file otps.json.');
+        });
+    }
+
+    // Tự động tải lại mỗi 10 giây
+    setInterval(fetchOTPs, 10000);
+    window.onload = fetchOTPs; // Tải lần đầu khi mở trang
+  </script>
+</body>
+</html>
